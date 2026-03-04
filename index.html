@@ -461,12 +461,25 @@ const ROLES_CARGA=['Preceptor','Director','Vicedirectora','Secretario','Represen
 async function api(fn, params={}) {
   const payload = {fn, usuarioObj:usuario, ...params};
   const jsonStr = JSON.stringify(payload);
-  const url = APPS_SCRIPT_URL+'?fn='+encodeURIComponent(fn)+'&data='+encodeURIComponent(jsonStr);
-  const res  = await fetch(url, {redirect:'follow'});
-  const text = await res.text();
   let data;
-  try { data=JSON.parse(text); }
-  catch(e) { throw new Error('Error de conexion. Intenta de nuevo.'); }
+  // Si el payload es grande (foto incluida) usar POST, sino GET
+  if (jsonStr.length > 2000) {
+    const res = await fetch(APPS_SCRIPT_URL, {
+      method: 'POST',
+      redirect: 'follow',
+      headers: {'Content-Type':'text/plain'},
+      body: jsonStr
+    });
+    const text = await res.text();
+    try { data = JSON.parse(text); }
+    catch(e) { throw new Error('Error de conexion. Intenta de nuevo.'); }
+  } else {
+    const url = APPS_SCRIPT_URL+'?fn='+encodeURIComponent(fn)+'&data='+encodeURIComponent(jsonStr);
+    const res = await fetch(url, {redirect:'follow'});
+    const text = await res.text();
+    try { data = JSON.parse(text); }
+    catch(e) { throw new Error('Error de conexion. Intenta de nuevo.'); }
+  }
   if (data.error) throw new Error(data.error);
   return data.result;
 }
@@ -741,23 +754,15 @@ function previsualizarFoto(input){
     // Comprimir a max 400px y calidad 35% para que quepa en la URL
     const img=new Image();
     img.onload=()=>{
-      // Comprimir iterativamente hasta que quepa en la URL (<4500 chars base64)
-      let w=img.width, h=img.height;
-      // Comprimir agresivamente: max 150px, calidad 20% — garantiza <2000 chars
-      const MAX=150;
+      // Buena calidad para Drive — max 1200px, calidad 85%
+      const MAX=1200;
       let w2=img.width, h2=img.height;
       if(w2>h2){ if(w2>MAX){h2=Math.round(h2*MAX/w2);w2=MAX;} }
       else     { if(h2>MAX){w2=Math.round(w2*MAX/h2);h2=MAX;} }
       const canvas=document.createElement('canvas');
       canvas.width=w2; canvas.height=h2;
       canvas.getContext('2d').drawImage(img,0,0,w2,h2);
-      let compressed=canvas.toDataURL('image/jpeg',0.20);
-      // Si aun es muy grande bajar mas
-      let q=0.15;
-      while(compressed.length > 2000 && q > 0.05) {
-        compressed=canvas.toDataURL('image/jpeg', q);
-        q-=0.02;
-      }
+      let compressed=canvas.toDataURL('image/jpeg', 0.85);
       document.getElementById('fotoImg').src=compressed;
       document.getElementById('fotoPreview').style.display='block';
       wFotoBase64=compressed;
