@@ -461,25 +461,12 @@ const ROLES_CARGA=['Preceptor','Director','Vicedirectora','Secretario','Represen
 async function api(fn, params={}) {
   const payload = {fn, usuarioObj:usuario, ...params};
   const jsonStr = JSON.stringify(payload);
+  const url = APPS_SCRIPT_URL+'?fn='+encodeURIComponent(fn)+'&data='+encodeURIComponent(jsonStr);
+  const res = await fetch(url, {redirect:'follow'});
+  const text = await res.text();
   let data;
-  // Si el payload es grande (foto incluida) usar POST, sino GET
-  if (jsonStr.length > 2000) {
-    const res = await fetch(APPS_SCRIPT_URL, {
-      method: 'POST',
-      redirect: 'follow',
-      headers: {'Content-Type':'text/plain'},
-      body: jsonStr
-    });
-    const text = await res.text();
-    try { data = JSON.parse(text); }
-    catch(e) { throw new Error('Error de conexion. Intenta de nuevo.'); }
-  } else {
-    const url = APPS_SCRIPT_URL+'?fn='+encodeURIComponent(fn)+'&data='+encodeURIComponent(jsonStr);
-    const res = await fetch(url, {redirect:'follow'});
-    const text = await res.text();
-    try { data = JSON.parse(text); }
-    catch(e) { throw new Error('Error de conexion. Intenta de nuevo.'); }
-  }
+  try { data = JSON.parse(text); }
+  catch(e) { throw new Error('Error de conexion. Intenta de nuevo.'); }
   if (data.error) throw new Error(data.error);
   return data.result;
 }
@@ -754,15 +741,21 @@ function previsualizarFoto(input){
     // Comprimir a max 400px y calidad 35% para que quepa en la URL
     const img=new Image();
     img.onload=()=>{
-      // Buena calidad para Drive — max 1200px, calidad 85%
-      const MAX=1200;
+      // Comprimir para que entre en GET pero legible: max 900px, calidad 65%
+      const MAX=900;
       let w2=img.width, h2=img.height;
       if(w2>h2){ if(w2>MAX){h2=Math.round(h2*MAX/w2);w2=MAX;} }
       else     { if(h2>MAX){w2=Math.round(w2*MAX/h2);h2=MAX;} }
       const canvas=document.createElement('canvas');
       canvas.width=w2; canvas.height=h2;
       canvas.getContext('2d').drawImage(img,0,0,w2,h2);
-      let compressed=canvas.toDataURL('image/jpeg', 0.85);
+      let compressed=canvas.toDataURL('image/jpeg', 0.65);
+      // Si supera 300KB comprimir un poco más
+      let q=0.55;
+      while(compressed.length > 400000 && q > 0.30) {
+        compressed=canvas.toDataURL('image/jpeg', q);
+        q-=0.05;
+      }
       document.getElementById('fotoImg').src=compressed;
       document.getElementById('fotoPreview').style.display='block';
       wFotoBase64=compressed;
@@ -845,16 +838,28 @@ async function confirmarAusencia(){
   btn.disabled=true;btn.textContent='⏳ Enviando...';
   try{
     // Subir foto al Worker primero si existe
-    // La foto se manda directo al Apps Script que la guarda en Drive y la incluye en el mail
-    if (wFotoBase64) btn.textContent='⏳ Subiendo foto...';
+    // Paso 1: registrar la ausencia
+    btn.textContent='⏳ Registrando...';
     let res;
     try {
       res=await api('registrarInasistenciaPropia',{
         datos:{fechaAusencia:fechaStr,motivo:wMotivo,tieneCertificado:wCert,
-                observaciones:document.getElementById('wObs').value,
-                fotoBase64: wFotoBase64 || null}
+                observaciones:document.getElementById('wObs').value}
       });
     } catch(e1) { throw e1; }
+    // Paso 2: si hay foto, subirla por separado a Drive
+    if (wFotoBase64) {
+      try {
+        btn.textContent='⏳ Subiendo certificado a Drive...';
+        await api('guardarCertificadoDrive',{
+          fotoBase64: wFotoBase64,
+          nombre: usuario.nombre,
+          fecha: fechaStr
+        });
+      } catch(ef) {
+        console.warn('No se pudo subir el certificado:', ef.message);
+      }
+    }
     goStep(4);
     // Foto ya incluida en el registro principal (comprimida a <3KB)
     document.getElementById('wExitoMsg').innerHTML=
