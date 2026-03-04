@@ -186,7 +186,7 @@ header{background:linear-gradient(90deg,var(--vd),var(--vm));color:#fff;padding:
 </head>
 <body>
 
-<script>const WORKER_URL='https://certificados-cpm.docentes3189.workers.dev';
+<script>// WORKER_URL eliminado - certificados van directo a Drive via Apps Script
 const APPS_SCRIPT_URL='https://script.google.com/macros/s/AKfycbzK0oV1bstHcHWFelxfnJDahnGDgXRGBSi0p5nRklXXgg9m4XYcDjnCwj6v0zc55b1LOQ/exec';</script>
 
 <!-- PORTADA -->
@@ -840,28 +840,14 @@ async function confirmarAusencia(){
   btn.disabled=true;btn.textContent='⏳ Enviando...';
   try{
     // Subir foto al Worker primero si existe
-    let linkCertificado = null;
-    if (wFotoBase64) {
-      try {
-        btn.textContent='⏳ Subiendo foto...';
-        const respWorker = await fetch(WORKER_URL, {
-          method:'POST',
-          headers:{'Content-Type':'application/json'},
-          body:JSON.stringify({ fotoBase64:wFotoBase64, nombre:usuario.nombre, fecha:fechaStr })
-        });
-        const dataWorker = await respWorker.json();
-        if (dataWorker.result && dataWorker.result.link) linkCertificado = dataWorker.result.link;
-        btn.textContent='⏳ Registrando...';
-      } catch(ef) {
-        console.log('Worker error:', ef.message);
-      }
-    }
+    // La foto se manda directo al Apps Script que la guarda en Drive y la incluye en el mail
+    if (wFotoBase64) btn.textContent='⏳ Subiendo foto...';
     let res;
     try {
       res=await api('registrarInasistenciaPropia',{
         datos:{fechaAusencia:fechaStr,motivo:wMotivo,tieneCertificado:wCert,
                 observaciones:document.getElementById('wObs').value,
-                linkCertificado:linkCertificado}
+                fotoBase64: wFotoBase64 || null}
       });
     } catch(e1) { throw e1; }
     goStep(4);
