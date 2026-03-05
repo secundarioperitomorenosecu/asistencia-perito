@@ -187,6 +187,8 @@ header{background:linear-gradient(90deg,var(--vd),var(--vm));color:#fff;padding:
 <body>
 
 <script>// WORKER_URL eliminado - certificados van directo a Drive via Apps Script
+const CLOUDINARY_CLOUD = 'dozkeiwwl';
+const CLOUDINARY_PRESET = 'certificados_cpm';
 const APPS_SCRIPT_URL='https://script.google.com/macros/s/AKfycbzK0oV1bstHcHWFelxfnJDahnGDgXRGBSi0p5nRklXXgg9m4XYcDjnCwj6v0zc55b1LOQ/exec';</script>
 
 <!-- PORTADA -->
@@ -199,14 +201,14 @@ const APPS_SCRIPT_URL='https://script.google.com/macros/s/AKfycbzK0oV1bstHcHWFel
     <div class="lform">
       <div>
         <input class="linput" type="text" id="lApellido" placeholder="Apellido" autocomplete="off" autocapitalize="characters">
-        <div class="lhint">En mayúsculas (ej: GOMEZ o MONTES DE OCA)</div>
+        <div class="lhint">En mayÃºsculas (ej: GOMEZ o MONTES DE OCA)</div>
       </div>
       <div>
         <input class="linput" type="password" id="lFecha" placeholder="Fecha de nacimiento">
         <div class="lhint">DDMMAAAA sin espacios (ej: 15031985)</div>
       </div>
       <div class="lerr" id="loginErr"></div>
-      <button class="btn-ing" id="btnLogin" onclick="hacerLogin()">Ingresar →</button>
+      <button class="btn-ing" id="btnLogin" onclick="hacerLogin()">Ingresar â†’</button>
     </div>
   </div>
 </div>
@@ -225,28 +227,30 @@ const APPS_SCRIPT_URL='https://script.google.com/macros/s/AKfycbzK0oV1bstHcHWFel
       <div class="hesc">Asistencia Docente<span>Colegio Perito Moreno</span></div>
     </div>
     <div class="hr">
-      <div class="huser"><div id="hUN">—</div><div id="hUB">—</div></div>
+      <div class="huser"><div id="hUN">â€”</div><div id="hUB">â€”</div></div>
       <button class="btn-sal" onclick="cerrarSesion()">Salir</button>
     </div>
   </header>
   <nav class="tnav">
-    <button class="tbtn active" id="tab-btn-hoy" onclick="showTab('hoy',this)">📋 Cargar Asistencia</button>
-    <button class="tbtn" id="tab-btn-miausencia" onclick="showTab('miausencia',this)">📝 Mi Ausencia</button>
-    <button class="tbtn" id="tab-btn-historial" onclick="showTab('historial',this)">🔍 Historial de Inasistencias</button>
-    <button class="tbtn admin-only" id="tab-btn-reporte" onclick="showTab('reporte',this)">📊 Reporte</button>
-    <button class="tbtn admin-only" id="tab-btn-docente" onclick="showTab('docente',this)">👤 Por Docente</button>
+    <button class="tbtn active" id="tab-btn-hoy" onclick="showTab('hoy',this)">ðŸ“‹ Cargar Asistencia</button>
+    <button class="tbtn" id="tab-btn-miausencia" onclick="showTab('miausencia',this)">ðŸ“ Mi Ausencia</button>
+    <button class="tbtn" id="tab-btn-historial" onclick="showTab('historial',this)">ðŸ” Historial de Inasistencias</button>
+    <button class="tbtn admin-only" id="tab-btn-reporte" onclick="showTab('reporte',this)">ðŸ“Š Reporte</button>
+    <button class="tbtn admin-only" id="tab-btn-docente" onclick="showTab('docente',this)">ðŸ‘¤ Por Docente</button>
+    <button class="tbtn admin-only" id="tab-btn-estadisticas" onclick="showTab('estadisticas',this)">ðŸ“ˆ EstadÃ­sticas</button>
+    <button class="tbtn admin-only" id="tab-btn-exportar" onclick="showTab('exportar',this)">â¬‡ï¸ Exportar</button>
   </nav>
   <div class="amain">
 
     <!-- CARGAR ASISTENCIA -->
     <div id="tab-hoy" class="tp active">
       <div class="card">
-        <div class="ctit">📋 Asistencia del día <span id="fechaHoy" style="font-size:.82em;color:#78909C;font-weight:500;margin-left:auto"></span></div>
+        <div class="ctit">ðŸ“‹ Asistencia del dÃ­a <span id="fechaHoy" style="font-size:.82em;color:#78909C;font-weight:500;margin-left:auto"></span></div>
         <div class="frow">
-          <div class="fg"><label>Día</label>
+          <div class="fg"><label>DÃ­a</label>
             <select id="selDia" onchange="cargarHorario()">
               <option value="LUNES">Lunes</option><option value="MARTES">Martes</option>
-              <option value="MIERCOLES">Miércoles</option><option value="JUEVES">Jueves</option>
+              <option value="MIERCOLES">MiÃ©rcoles</option><option value="JUEVES">Jueves</option>
               <option value="VIERNES">Viernes</option>
             </select>
           </div>
@@ -255,9 +259,9 @@ const APPS_SCRIPT_URL='https://script.google.com/macros/s/AKfycbzK0oV1bstHcHWFel
         <div id="alertaZ"></div>
         <div id="tablaZ"><div class="loading"><div class="sspin"></div>Cargando...</div></div>
         <div class="bact">
-          <button class="btn bout" onclick="marcarTodosDocentes('Presente')">✅ Todos presentes</button>
-          <button class="btn bout" style="color:#C62828;border-color:#C62828" onclick="limpiarEstadosDocentes()">🔄 Limpiar</button>
-          <button class="btn bsuc" onclick="guardarAsistencia()">💾 Guardar</button>
+          <button class="btn bout" onclick="marcarTodosDocentes('Presente')">âœ… Todos presentes</button>
+          <button class="btn bout" style="color:#C62828;border-color:#C62828" onclick="limpiarEstadosDocentes()">ðŸ”„ Limpiar</button>
+          <button class="btn bsuc" onclick="guardarAsistencia()">ðŸ’¾ Guardar</button>
         </div>
       </div>
     </div>
@@ -265,29 +269,29 @@ const APPS_SCRIPT_URL='https://script.google.com/macros/s/AKfycbzK0oV1bstHcHWFel
     <!-- MI AUSENCIA -->
     <div id="tab-miausencia" class="tp">
       <div class="card">
-        <div class="ctit">📝 Informar mi inasistencia</div>
-        <div class="al ai" style="margin-bottom:20px">ℹ️ Al confirmar, todos tus bloques horarios de ese día quedarán marcados como ausente y se enviará un aviso a <em><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="dba8beb8aeb5bfbaa9b2ba9bb8b4b7bebcb2b4abbea9b2afb4b6b4a9beb5b4f5b8b4b6f5baa9">[email&#160;protected]</a></em>.</div>
+        <div class="ctit">ðŸ“ Informar mi inasistencia</div>
+        <div class="al ai" style="margin-bottom:20px">â„¹ï¸ Al confirmar, todos tus bloques horarios de ese dÃ­a quedarÃ¡n marcados como ausente y se enviarÃ¡ un aviso a <em><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="dba8beb8aeb5bfbaa9b2ba9bb8b4b7bebcb2b4abbea9b2afb4b6b4a9beb5b4f5b8b4b6f5baa9">[email&#160;protected]</a></em>.</div>
         <div id="misAusenciasZ"></div>
-        <button class="btn bpri" onclick="abrirWizard()" style="margin-top:8px">➕ Registrar nueva inasistencia</button>
+        <button class="btn bpri" onclick="abrirWizard()" style="margin-top:8px">âž• Registrar nueva inasistencia</button>
       </div>
     </div>
 
     <!-- HISTORIAL -->
     <div id="tab-historial" class="tp">
       <div class="card">
-        <div class="ctit">🔍 Historial de Inasistencias</div>
+        <div class="ctit">ðŸ” Historial de Inasistencias</div>
         <div class="frow">
           <div class="fg"><label>Apellido</label><input type="text" id="histDoc" placeholder="Ej: GOMEZ" list="dlD"></div>
-          <button class="btn bpri" onclick="buscarHistorial()">🔍 Buscar</button>
+          <button class="btn bpri" onclick="buscarHistorial()">ðŸ” Buscar</button>
         </div>
-        <div id="histZ"><p style="color:#90A4AE;font-style:italic">Ingresá un apellido para buscar.</p></div>
+        <div id="histZ"><p style="color:#90A4AE;font-style:italic">IngresÃ¡ un apellido para buscar.</p></div>
       </div>
     </div>
 
     <!-- REPORTE -->
     <div id="tab-reporte" class="tp">
       <div class="card">
-        <div class="ctit">📊 Reporte mensual</div>
+        <div class="ctit">ðŸ“Š Reporte mensual</div>
         <div class="frow">
           <div class="fg"><label>Mes</label>
             <select id="repMes">
@@ -297,23 +301,58 @@ const APPS_SCRIPT_URL='https://script.google.com/macros/s/AKfycbzK0oV1bstHcHWFel
               <option value="10">Octubre</option><option value="11">Noviembre</option><option value="12">Diciembre</option>
             </select>
           </div>
-          <div class="fg"><label>Año</label><input type="number" id="repAnio" value="2026" min="2025" max="2030" style="width:95px"></div>
-          <button class="btn bpri" onclick="generarReporte()">📊 Generar</button>
-          <button class="btn bout" onclick="exportarCSV()">⬇️ CSV</button>
+          <div class="fg"><label>AÃ±o</label><input type="number" id="repAnio" value="2026" min="2025" max="2030" style="width:95px"></div>
+          <button class="btn bpri" onclick="generarReporte()">ðŸ“Š Generar</button>
+          <button class="btn bout" onclick="exportarCSV()">â¬‡ï¸ CSV</button>
         </div>
-        <div id="repZ"><p style="color:#90A4AE;font-style:italic">Seleccioná mes y año.</p></div>
+        <div id="repZ"><p style="color:#90A4AE;font-style:italic">SeleccionÃ¡ mes y aÃ±o.</p></div>
       </div>
     </div>
 
     <!-- POR DOCENTE -->
     <div id="tab-docente" class="tp">
       <div class="card">
-        <div class="ctit">👤 Legajo por docente</div>
+        <div class="ctit">ðŸ‘¤ Legajo por docente</div>
         <div class="frow">
           <div class="fg"><label>Apellido</label><input type="text" id="docBus" placeholder="Ej: GOMEZ" list="dlD2"></div>
           <button class="btn bpri" onclick="buscarPorDocente()">Buscar</button>
         </div>
-        <div id="docZ"><p style="color:#90A4AE;font-style:italic">Ingresá el apellido.</p></div>
+        <div id="docZ"><p style="color:#90A4AE;font-style:italic">IngresÃ¡ el apellido.</p></div>
+      </div>
+    </div>
+
+    <!-- ESTADÃSTICAS -->
+    <div id="tab-estadisticas" class="tp">
+      <div class="card">
+        <div class="ctit">ðŸ“ˆ EstadÃ­sticas de ausencias</div>
+        <div class="frow" style="margin-bottom:16px">
+          <div class="fg"><label>Mes</label>
+            <select id="estMes">
+              <option value="0">â€” Todo el aÃ±o â€”</option>
+              <option value="1">Enero</option><option value="2">Febrero</option><option value="3">Marzo</option>
+              <option value="4">Abril</option><option value="5">Mayo</option><option value="6">Junio</option>
+              <option value="7">Julio</option><option value="8">Agosto</option><option value="9">Septiembre</option>
+              <option value="10">Octubre</option><option value="11">Noviembre</option><option value="12">Diciembre</option>
+            </select>
+          </div>
+          <div class="fg"><label>AÃ±o</label><input type="number" id="estAnio" value="2026" min="2025" max="2030" style="width:95px"></div>
+          <button class="btn bpri" onclick="generarEstadisticas()">ðŸ“ˆ Generar</button>
+        </div>
+        <div id="estZ"><p style="color:#90A4AE;font-style:italic">SeleccionÃ¡ perÃ­odo y generÃ¡.</p></div>
+      </div>
+    </div>
+
+    <!-- EXPORTAR EXCEL -->
+    <div id="tab-exportar" class="tp">
+      <div class="card">
+        <div class="ctit">â¬‡ï¸ Exportar a Excel</div>
+        <p style="font-size:.88em;color:#607D8B;margin-bottom:16px">Genera un archivo Excel con una hoja por motivo de ausencia.</p>
+        <div class="frow" style="margin-bottom:16px">
+          <div class="fg"><label>Desde</label><input type="date" id="expDesde" class="sinput"></div>
+          <div class="fg"><label>Hasta</label><input type="date" id="expHasta" class="sinput"></div>
+          <button class="btn bpri" onclick="exportarExcel()">â¬‡ï¸ Descargar Excel</button>
+        </div>
+        <div id="expZ"></div>
       </div>
     </div>
 
@@ -328,8 +367,8 @@ const APPS_SCRIPT_URL='https://script.google.com/macros/s/AKfycbzK0oV1bstHcHWFel
 <div class="overlay" id="wizardOverlay">
   <div class="modal">
     <div class="mhead">
-      <h2>📝 Registrar inasistencia</h2>
-      <button class="mclose" onclick="cerrarWizard()">✕</button>
+      <h2>ðŸ“ Registrar inasistencia</h2>
+      <button class="mclose" onclick="cerrarWizard()">âœ•</button>
     </div>
     <div class="mbody">
       <div class="steps-ind">
@@ -339,102 +378,138 @@ const APPS_SCRIPT_URL='https://script.google.com/macros/s/AKfycbzK0oV1bstHcHWFel
         <div class="sind" id="si4">4</div>
       </div>
 
-      <!-- PASO 1 -->
+      <!-- PASO 1: fecha + motivo -->
       <div class="step active" id="wStep1">
         <div style="margin-bottom:20px">
           <span class="slbl">Fecha de ausencia</span>
           <input type="date" class="sinput" id="wFecha" style="max-width:220px">
-          <p style="font-size:.78em;color:#90A4AE;margin-top:5px">Podés informar con anticipación</p>
+          <p style="font-size:.78em;color:#90A4AE;margin-top:5px">PodÃ©s informar con anticipaciÃ³n</p>
         </div>
         <div>
           <span class="slbl">Motivo</span>
           <div class="rcards">
-            <label class="rcard" onclick="selMotivo(this,'Causas particulares')">
-              <input type="radio" name="motivo" value="Causas particulares">
-              <span style="font-size:1.4em">👤</span>
-              <div><strong>Causas particulares</strong><br><span style="font-size:.82em;color:#78909C">Motivos personales o familiares no médicos</span></div>
+            <label class="rcard" onclick="selMotivo(this,'Enfermedad')">
+              <input type="radio" name="motivo" value="Enfermedad">
+              <span style="font-size:1.4em">ðŸ¥</span>
+              <div><strong>Enfermedad</strong><br><span style="font-size:.82em;color:#78909C">Licencia mÃ©dica propia o familiar</span></div>
             </label>
-            <label class="rcard" onclick="selMotivo(this,'Licencia médica propia')">
-              <input type="radio" name="motivo" value="Licencia médica propia">
-              <span style="font-size:1.4em">🏥</span>
-              <div><strong>Licencia médica propia</strong><br><span style="font-size:.82em;color:#78909C">Enfermedad o consulta médica personal</span></div>
+            <label class="rcard" onclick="selMotivo(this,'Paro de transporte')">
+              <input type="radio" name="motivo" value="Paro de transporte">
+              <span style="font-size:1.4em">ðŸšŒ</span>
+              <div><strong>Paro de transporte</strong><br><span style="font-size:.82em;color:#78909C">Comunicarse con el Secretario</span></div>
             </label>
-            <label class="rcard" onclick="selMotivo(this,'Licencia médica familiar')">
-              <input type="radio" name="motivo" value="Licencia médica familiar">
-              <span style="font-size:1.4em">👨‍👩‍👧</span>
-              <div><strong>Licencia médica familiar</strong><br><span style="font-size:.82em;color:#78909C">Enfermedad o atención de familiar a cargo</span></div>
+            <label class="rcard" onclick="selMotivo(this,'Paro general')">
+              <input type="radio" name="motivo" value="Paro general">
+              <span style="font-size:1.4em">âœŠ</span>
+              <div><strong>Paro general</strong><br><span style="font-size:.82em;color:#78909C">ComunicaciÃ³n de adhesiÃ³n</span></div>
+            </label>
+            <label class="rcard" onclick="selMotivo(this,'Examen')">
+              <input type="radio" name="motivo" value="Examen">
+              <span style="font-size:1.4em">ðŸ“š</span>
+              <div><strong>Examen</strong><br><span style="font-size:.82em;color:#78909C">Constancia del establecimiento educativo</span></div>
+            </label>
+            <label class="rcard" onclick="selMotivo(this,'Causas gremiales')">
+              <input type="radio" name="motivo" value="Causas gremiales">
+              <span style="font-size:1.4em">ðŸ¤</span>
+              <div><strong>Causas gremiales</strong><br><span style="font-size:.82em;color:#78909C">Constancia del sindicato</span></div>
+            </label>
+            <label class="rcard" onclick="selMotivo(this,'Otras')">
+              <input type="radio" name="motivo" value="Otras">
+              <span style="font-size:1.4em">ðŸ“</span>
+              <div><strong>Otras</strong><br><span style="font-size:.82em;color:#78909C">Especificar en observaciones</span></div>
             </label>
           </div>
         </div>
         <div style="margin-top:20px">
-          <span class="slbl">Observaciones (opcional)</span>
-          <textarea class="sinput" id="wObs" rows="2" placeholder="Información adicional..."></textarea>
+          <span class="slbl">Observaciones <span id="obsReq" style="color:#C62828;display:none">*obligatorio</span></span>
+          <textarea class="sinput" id="wObs" rows="2" placeholder="InformaciÃ³n adicional..."></textarea>
         </div>
-        <div class="bact"><button class="btn bpri" onclick="wNext(1)">Continuar →</button></div>
+        <div class="bact"><button class="btn bpri" onclick="wNext(1)">Continuar â†’</button></div>
       </div>
 
-      <!-- PASO 2: certificado -->
+      <!-- PASO 2: detalles segÃºn motivo -->
       <div class="step" id="wStep2">
-        <h3 style="color:var(--vd);margin-bottom:8px;font-size:1em">¿Tenés certificado médico?</h3>
-        <p style="font-size:.88em;color:var(--gt);margin-bottom:18px;line-height:1.5">Indicá si ya contás con el certificado o si lo obtendrás luego.</p>
-        <div class="cert-cards">
-          <div class="ccard" id="ccSi" onclick="selCert(true)">
-            <div class="cico">✅</div><div class="ctxt">Sí tengo<br>certificado</div>
+        <!-- ENFERMEDAD -->
+        <div id="detEnfermedad" style="display:none">
+          <h3 style="color:var(--vd);margin-bottom:12px;font-size:1em">ðŸ¥ Datos de la licencia mÃ©dica</h3>
+          <div style="margin-bottom:14px">
+            <span class="slbl">DiagnÃ³stico</span>
+            <input type="text" class="sinput" id="wDiagnostico" placeholder="Ej: Faringitis aguda, gripe, etc.">
           </div>
-          <div class="ccard" id="ccNo" onclick="selCert(false)">
-            <div class="cico">📋</div><div class="ctxt">Aún no tengo<br>certificado</div>
+          <div style="margin-bottom:14px">
+            <span class="slbl">DuraciÃ³n estimada</span>
+            <div class="rcards" style="flex-wrap:wrap;gap:8px">
+              <label class="rcard" style="flex:0 0 auto;padding:10px 16px" onclick="selDuracion(this,'24 horas')">
+                <input type="radio" name="duracion" value="24 horas"><strong>24 hs</strong>
+              </label>
+              <label class="rcard" style="flex:0 0 auto;padding:10px 16px" onclick="selDuracion(this,'48 horas')">
+                <input type="radio" name="duracion" value="48 horas"><strong>48 hs</strong>
+              </label>
+              <label class="rcard" style="flex:0 0 auto;padding:10px 16px" onclick="selDuracion(this,'72 horas')">
+                <input type="radio" name="duracion" value="72 horas"><strong>72 hs</strong>
+              </label>
+              <label class="rcard" style="flex:0 0 auto;padding:10px 16px" onclick="selDuracion(this,'A determinar')">
+                <input type="radio" name="duracion" value="A determinar"><strong>A determinar</strong>
+              </label>
+            </div>
+          </div>
+          <div class="warn-box">
+            <p>â° <strong>RecordÃ¡:</strong> DebÃ©s presentar el certificado mÃ©dico dentro de las <strong>48 horas</strong>. EntregÃ¡ <strong>2 copias</strong>: una a SecretarÃ­a y otra a AdministraciÃ³n, firmando al dorso con fecha de entrega.</p>
           </div>
         </div>
-        <div class="req-box">
-          <h4>📋 Requisitos del certificado médico</h4>
-          <ul>
-            <li>Fecha de la consulta / inicio de licencia</li>
-            <li>Nombre y apellido completo</li>
-            <li>DNI</li>
-            <li>Diagnóstico</li>
-            <li>Indicación de <strong>reposo por X horas/días</strong></li>
-            <li>Sello y firma del médico</li>
-          </ul>
-        </div>
-        <div class="warn-box">
-          <p>⏰ <strong>Plazo:</strong> presentar dentro de las <strong>48 horas</strong> de acontecida la licencia.</p>
-        </div>
-        <!-- FOTO CERTIFICADO — solo visible cuando dice "Sí tengo" -->
-        <div class="foto-box" id="fotoBox">
-          <span class="slbl" style="margin-bottom:10px">📎 Adjuntar foto del certificado (opcional)</span>
-          <label class="foto-lbl">
-            📷 Seleccionar / sacar foto
-            <input type="file" id="fotoCert" accept="image/*" capture="environment" style="display:none" onchange="previsualizarFoto(this)">
-          </label>
+        <!-- FOTO CERTIFICADO â€” solo para Enfermedad -->
+        <div id="detFoto" style="display:none;margin-top:16px">
+          <span class="slbl">ðŸ“Ž Foto del certificado (opcional)</span>
+          <div style="margin-top:8px">
+            <label style="display:inline-block;background:var(--vc);color:#fff;padding:9px 18px;border-radius:8px;cursor:pointer;font-size:.88em;font-weight:600">
+              ðŸ“· Sacar / seleccionar foto
+              <input type="file" id="fotoCert" accept="image/*" capture="environment" style="display:none" onchange="previsualizarFoto(this)">
+            </label>
+          </div>
           <div id="fotoPreview" style="margin-top:12px;display:none">
-            <img id="fotoImg" style="max-width:100%;max-height:200px;border-radius:10px;border:2px solid var(--vc)">
+            <img id="fotoImg" style="max-width:100%;max-height:180px;border-radius:10px;border:2px solid var(--vc)">
             <div id="fotoSize" style="font-size:.75em;color:var(--vd);margin-top:4px;font-weight:600"></div>
-            <button onclick="borrarFoto()" style="display:block;margin-top:4px;font-size:.78em;color:#C62828;background:none;border:none;cursor:pointer">✕ Quitar foto</button>
+            <button onclick="borrarFoto()" style="display:block;margin-top:4px;font-size:.78em;color:#C62828;background:none;border:none;cursor:pointer">âœ• Quitar foto</button>
+          </div>
+        </div>
+
+        <!-- REEMPLAZANTE (para todos los motivos) -->
+        <div style="margin-top:16px">
+          <span class="slbl">Â¿Hay reemplazante? (opcional)</span>
+          <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:8px">
+            <select class="sinput" id="wReemplazante" style="flex:1;min-width:180px" onchange="toggleTipoReemplazo()">
+              <option value="">â€” Sin reemplazante â€”</option>
+            </select>
+            <select class="sinput" id="wTipoReemplazo" style="flex:1;min-width:160px;display:none">
+              <option value="">Tipo de reemplazo</option>
+              <option value="Movimiento interno">Movimiento interno</option>
+              <option value="Abona la escuela">Abona la escuela</option>
+            </select>
           </div>
         </div>
         <div class="bact">
-          <button class="btn bout" onclick="wBack(2)">← Volver</button>
-          <button class="btn bpri" id="btnSig2" onclick="wNext(2)" disabled>Continuar →</button>
+          <button class="btn bout" onclick="wBack(2)">â† Volver</button>
+          <button class="btn bpri" id="btnSig2" onclick="wNext(2)">Continuar â†’</button>
         </div>
       </div>
 
-      <!-- PASO 3: confirmación -->
+      <!-- PASO 3: confirmaciÃ³n -->
       <div class="step" id="wStep3">
-        <h3 style="color:var(--vd);margin-bottom:16px;font-size:1em">Revisá antes de confirmar</h3>
+        <h3 style="color:var(--vd);margin-bottom:16px;font-size:1em">RevisÃ¡ antes de confirmar</h3>
         <div id="confResumen"></div>
         <div id="confClases" class="clases-lista" style="margin-top:16px"></div>
-        <div class="al aw" style="margin-top:16px">⚠️ Al confirmar no podrás deshacer. Se enviará email automático a la institución.</div>
+        <div class="al aw" style="margin-top:16px">âš ï¸ Al confirmar no podrÃ¡s deshacer. Se enviarÃ¡ email automÃ¡tico a la instituciÃ³n.</div>
         <div class="bact">
-          <button class="btn bout" onclick="wBack(3)">← Volver</button>
-          <button class="btn bsuc" id="btnConfirmar" onclick="confirmarAusencia()" disabled>✅ Confirmar y enviar</button>
+          <button class="btn bout" onclick="wBack(3)">â† Volver</button>
+          <button class="btn bsuc" id="btnConfirmar" onclick="confirmarAusencia()" disabled>âœ… Confirmar y enviar</button>
         </div>
       </div>
 
-      <!-- PASO 4: éxito -->
+      <!-- PASO 4: Ã©xito -->
       <div class="step" id="wStep4">
         <div style="text-align:center;padding:20px 0">
-          <div style="font-size:4em;margin-bottom:16px">✅</div>
-          <h3 style="color:#2E7D32;margin-bottom:10px">¡Inasistencia registrada!</h3>
+          <div style="font-size:4em;margin-bottom:16px">âœ…</div>
+          <h3 style="color:#2E7D32;margin-bottom:10px">Â¡Inasistencia registrada!</h3>
           <p style="color:var(--gt);font-size:.9em;line-height:1.6;margin-bottom:20px" id="wExitoMsg"></p>
           <div class="al aok" id="wExitoCert" style="display:none;text-align:left"></div>
           <button class="btn bpri" style="margin-top:8px" onclick="cerrarWizard()">Cerrar</button>
@@ -445,9 +520,9 @@ const APPS_SCRIPT_URL='https://script.google.com/macros/s/AKfycbzK0oV1bstHcHWFel
 </div>
 
 <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
-// ═══════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 // STATE
-// ═══════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 let usuario=null, clasesHoy=[], clasesVis=[];
 let wMotivo=null, wCert=null, wFotoBase64=null;
 let _repData=[];
@@ -455,9 +530,9 @@ const MESES=['','Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto
 const ROLES_ADMIN=['Director','Vicedirectora','Secretario','Representante Legal'];
 const ROLES_CARGA=['Preceptor','Director','Vicedirectora','Secretario','Representante Legal'];
 
-// ═══════════════════════════════════
-// API — usa GET para evitar CORS
-// ═══════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// API â€” usa GET para evitar CORS
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 async function api(fn, params={}) {
   const payload = {fn, usuarioObj:usuario, ...params};
   const jsonStr = JSON.stringify(payload);
@@ -471,13 +546,13 @@ async function api(fn, params={}) {
   return data.result;
 }
 
-// ═══════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 // INIT
-// ═══════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 window.onload=function(){
   const hoy=new Date();
   const dias=['DOMINGO','LUNES','MARTES','MIERCOLES','JUEVES','VIERNES','SABADO'];
-  const dN=['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'];
+  const dN=['Domingo','Lunes','Martes','MiÃ©rcoles','Jueves','Viernes','SÃ¡bado'];
   document.getElementById('fechaHoy').textContent=dN[hoy.getDay()]+' '+hoy.toLocaleDateString('es-AR',{day:'2-digit',month:'long',year:'numeric'});
   const sel=document.getElementById('selDia');
   for(let o of sel.options){if(o.value===dias[hoy.getDay()]){o.selected=true;break;}}
@@ -488,13 +563,13 @@ window.onload=function(){
   document.getElementById('lApellido').addEventListener('keydown',e=>{if(e.key==='Enter')document.getElementById('lFecha').focus();});
 };
 
-// ═══════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 // LOGIN
-// ═══════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 async function hacerLogin(){
   const apellido=document.getElementById('lApellido').value.trim().toUpperCase();
   const fecha=document.getElementById('lFecha').value.trim();
-  if(!apellido||!fecha){mostrarErrLogin('Completá ambos campos.');return;}
+  if(!apellido||!fecha){mostrarErrLogin('CompletÃ¡ ambos campos.');return;}
   document.getElementById('loginErr').style.display='none';
   const btn=document.getElementById('btnLogin');
   btn.disabled=true;btn.textContent='Verificando...';
@@ -506,13 +581,13 @@ async function hacerLogin(){
   }catch(e){
     document.getElementById('loadingS').style.display='none';
     document.getElementById('portada').style.display='flex';
-    btn.disabled=false;btn.textContent='Ingresar →';
+    btn.disabled=false;btn.textContent='Ingresar â†’';
     mostrarErrLogin(e.message);
   }
 }
 function mostrarErrLogin(msg){
   const el=document.getElementById('loginErr');
-  el.textContent='❌ '+msg;el.style.display='block';
+  el.textContent='âŒ '+msg;el.style.display='block';
 }
 function cerrarSesion(){
   usuario=null;
@@ -521,7 +596,7 @@ function cerrarSesion(){
   document.getElementById('lApellido').value='';
   document.getElementById('lFecha').value='';
   document.getElementById('loginErr').style.display='none';
-  document.getElementById('btnLogin').textContent='Ingresar →';
+  document.getElementById('btnLogin').textContent='Ingresar â†’';
   document.getElementById('btnLogin').disabled=false;
 }
 function initApp(){
@@ -543,9 +618,9 @@ function initApp(){
   }
 }
 
-// ═══════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 // TABS
-// ═══════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 function showTab(name,btn){
   document.querySelectorAll('.tp').forEach(p=>p.classList.remove('active'));
   document.querySelectorAll('.tbtn').forEach(b=>b.classList.remove('active'));
@@ -553,9 +628,9 @@ function showTab(name,btn){
   if(btn)btn.classList.add('active');
 }
 
-// ═══════════════════════════════════
-// CARGAR ASISTENCIA — POR DOCENTE
-// ═══════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// CARGAR ASISTENCIA â€” POR DOCENTE
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 let docentesHoy = []; // [{nombre, turno, horas:[{horario,division,materia}], _estado, _tardaHora, _reempl, _abono, _obs}]
 
 // Hora de llegada via input nativo del sistema
@@ -577,26 +652,26 @@ async function cargarHorario(){
       if(c.turno==='Tarde') map[k].turno='Tarde';
     });
     docentesHoy=Object.values(map).sort((a,b)=>{
-      const t={'Mañana':0,'Tarde':1}; 
+      const t={'MaÃ±ana':0,'Tarde':1}; 
       return (t[a.turno]||0)-(t[b.turno]||0)||a.nombre.localeCompare(b.nombre);
     });
     renderDocentes();
-  }catch(e){document.getElementById('tablaZ').innerHTML=`<div class="al aer">❌ ${e.message}</div>`;}
+  }catch(e){document.getElementById('tablaZ').innerHTML=`<div class="al aer">âŒ ${e.message}</div>`;}
 }
 
 function renderDocentes(){
   if(!docentesHoy.length){
-    document.getElementById('tablaZ').innerHTML='<p style="color:#90A4AE;font-style:italic;padding:20px">Sin docentes para este día.</p>';
+    document.getElementById('tablaZ').innerHTML='<p style="color:#90A4AE;font-style:italic;padding:20px">Sin docentes para este dÃ­a.</p>';
     return;
   }
   let h='', lastTurno=null;
   docentesHoy.forEach((d,i)=>{
     if(d.turno!==lastTurno){
-      h+=`<div class="turno-sep">${d.turno==='Mañana'?'🌅':'🌆'} TURNO ${(d.turno||'').toUpperCase()}</div>`;
+      h+=`<div class="turno-sep">${d.turno==='MaÃ±ana'?'ðŸŒ…':'ðŸŒ†'} TURNO ${(d.turno||'').toUpperCase()}</div>`;
       lastTurno=d.turno;
     }
     const cls=d._estado?` estado-${d._estado.charAt(0)}`:'';
-    const horasHtml=d.horas.map(h=>`<span class="doc-hora-tag">${h.horario} · ${h.materia} (${h.division})</span>`).join('');
+    const horasHtml=d.horas.map(h=>`<span class="doc-hora-tag">${h.horario} Â· ${h.materia} (${h.division})</span>`).join('');
     const showExtra=d._estado==='Tarde'||d._estado==='Ausente'||d._estado==='Reemplazante';
     h+=`<div class="doc-card${cls}" id="dc-${i}">
       <div class="doc-nombre">${d.nombre}</div>
@@ -609,12 +684,12 @@ function renderDocentes(){
       <div class="doc-extra${showExtra?' show':''}" id="de-${i}">
         ${d._estado==='Tarde'?`
         <div style="margin-bottom:10px">
-          <span class="slbl" style="margin-bottom:6px">🕐 Hora de llegada</span>
+          <span class="slbl" style="margin-bottom:6px">ðŸ• Hora de llegada</span>
           <div style="display:flex;align-items:center;gap:12px;margin-top:8px">
             <input type="time" id="hs-${i}" value="${d._tardaHora||''}"
               style="font-size:1.6em;font-weight:700;color:var(--vd);border:2px solid var(--vc);border-radius:10px;padding:8px 12px;background:#fff;outline:none;width:140px"
               onchange="setTardaHora(${i},this.value)">
-            <div style="font-size:.78em;color:#90A4AE;line-height:1.5">Tocá para<br>elegir la hora</div>
+            <div style="font-size:.78em;color:#90A4AE;line-height:1.5">TocÃ¡ para<br>elegir la hora</div>
           </div>
         </div>`:''}
         ${d._estado==='Ausente'||d._estado==='Reemplazante'?`
@@ -623,9 +698,9 @@ function renderDocentes(){
             id="reempl-${i}" value="${d._reempl||''}" oninput="docentesHoy[${i}]._reempl=this.value">
           <div class="abono-row" style="margin-top:8px">
             <label><input type="radio" name="abono-${i}" value="Abona escuela" ${d._abono==='Abona escuela'?'checked':''}
-              onchange="docentesHoy[${i}]._abono=this.value"> 💰 Abona escuela</label>
+              onchange="docentesHoy[${i}]._abono=this.value"> ðŸ’° Abona escuela</label>
             <label><input type="radio" name="abono-${i}" value="Mecanizada" ${d._abono==='Mecanizada'?'checked':''}
-              onchange="docentesHoy[${i}]._abono=this.value"> 🔄 Mecanizada</label>
+              onchange="docentesHoy[${i}]._abono=this.value"> ðŸ”„ Mecanizada</label>
           </div>
         </div>`:''}
         <input type="text" class="oi" placeholder="Observaciones..." 
@@ -649,7 +724,7 @@ function setTardaHora(i,h){
   docentesHoy[i]._tardaHora=h;
 }
 
-function eIco(e){return {Presente:'✅',Ausente:'❌',Tarde:'⚠️',Reemplazante:'🔄'}[e]||'';}
+function eIco(e){return {Presente:'âœ…',Ausente:'âŒ',Tarde:'âš ï¸',Reemplazante:'ðŸ”„'}[e]||'';}
 
 function actualizarStats(){
   const t=docentesHoy.length,
@@ -674,13 +749,13 @@ function limpiarEstadosDocentes(){docentesHoy.forEach((d,i)=>{d._estado=null;d._
 
 async function guardarAsistencia(){
   const sin=docentesHoy.filter(d=>!d._estado);
-  if(sin.length){setAlerta(`⚠️ Faltan ${sin.length} docente(s) sin estado.`,'aw');return;}
+  if(sin.length){setAlerta(`âš ï¸ Faltan ${sin.length} docente(s) sin estado.`,'aw');return;}
   // Expandir cada docente a sus horas individuales
   const regs=[];
   const dia=document.getElementById('selDia').value;
   docentesHoy.forEach(d=>{
     d.horas.forEach(h=>{
-      const tardaStr=d._estado==='Tarde'&&d._tardaHora?`Tardanza — llegó a las ${d._tardaHora}. `:'';
+      const tardaStr=d._estado==='Tarde'&&d._tardaHora?`Tardanza â€” llegÃ³ a las ${d._tardaHora}. `:'';
       const obs=tardaStr+(d._obs||'');
       regs.push({dia,horario:h.horario,turno:h.turno,division:h.division,
         materia:h.materia,docente:d.nombre,estado:d._estado,
@@ -690,78 +765,88 @@ async function guardarAsistencia(){
     });
   });
   const btn=document.querySelector('[onclick="guardarAsistencia()"]');
-  btn.disabled=true;btn.textContent='⏳ Guardando...';
+  btn.disabled=true;btn.textContent='â³ Guardando...';
   try{
     const r=await api('guardarAsistencia',{registros:regs});
-    setAlerta(`✅ Guardado: ${r.guardados} registros.${r.ausentes>0?' 📧 Email enviado.':''}`, 'aok');
-  }catch(e){setAlerta('❌ '+e.message,'aer');}
-  btn.disabled=false;btn.textContent='💾 Guardar';
+    setAlerta(`âœ… Guardado: ${r.guardados} registros.${r.ausentes>0?' ðŸ“§ Email enviado.':''}`, 'aok');
+  }catch(e){setAlerta('âŒ '+e.message,'aer');}
+  btn.disabled=false;btn.textContent='ðŸ’¾ Guardar';
 }
 
-// ═══════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 // WIZARD
-// ═══════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+let wDuracion=null, wReemplazanteNombre=null, wTipoReemplazo=null, wDiagnostico=null;
+
 function abrirWizard(){
-  wMotivo=null;wCert=null;wFotoBase64=null;
+  wMotivo=null; wCert=null; wFotoBase64=null;
+  wDuracion=null; wReemplazanteNombre=null; wTipoReemplazo=null; wDiagnostico=null;
   document.querySelectorAll('.step').forEach(s=>s.classList.remove('active'));
   document.getElementById('wStep1').classList.add('active');
   document.querySelectorAll('.sind').forEach((s,i)=>{s.className='sind';if(i===0)s.classList.add('active');});
   document.querySelectorAll('.sline').forEach(l=>{l.className='sline';});
   document.querySelectorAll('.rcard').forEach(r=>r.classList.remove('sel'));
-  document.querySelectorAll('.ccard').forEach(c=>c.className='ccard');
   document.querySelectorAll('input[name="motivo"]').forEach(r=>r.checked=false);
+  document.querySelectorAll('input[name="duracion"]').forEach(r=>r.checked=false);
   document.getElementById('wObs').value='';
-  document.getElementById('btnSig2').disabled=true;
-  document.getElementById('fotoBox').style.display='none';
-  document.getElementById('fotoPreview').style.display='none';
+  wFotoBase64=null;
+  document.getElementById('wDiagnostico').value='';
   if(document.getElementById('fotoCert'))document.getElementById('fotoCert').value='';
+  document.getElementById('fotoPreview').style.display='none';
+  document.getElementById('detFoto').style.display='none';
+  document.getElementById('wReemplazante').value='';
+  document.getElementById('wTipoReemplazo').value='';
+  document.getElementById('wTipoReemplazo').style.display='none';
+  document.getElementById('obsReq').style.display='none';
   document.getElementById('wFecha').value=new Date().toISOString().split('T')[0];
+  // Inicializar fechas exportar (mes actual)
+  const hoy=new Date();
+  const primerDia=new Date(hoy.getFullYear(),hoy.getMonth(),1).toISOString().split('T')[0];
+  const ultimoDia=new Date(hoy.getFullYear(),hoy.getMonth()+1,0).toISOString().split('T')[0];
+  if(document.getElementById('expDesde'))document.getElementById('expDesde').value=primerDia;
+  if(document.getElementById('expHasta'))document.getElementById('expHasta').value=ultimoDia;
+  // cargar lista docentes en reemplazante
+  cargarListaReemplazantes();
   document.getElementById('wizardOverlay').classList.add('show');
 }
 function cerrarWizard(){
   document.getElementById('wizardOverlay').classList.remove('show');
   cargarMisAusencias();
 }
-function selMotivo(el,val){
-  document.querySelectorAll('.rcard').forEach(r=>r.classList.remove('sel'));
-  el.classList.add('sel');wMotivo=val;
-}
-function selCert(val){
-  wCert=val;
-  document.getElementById('ccSi').className='ccard'+(val===true?' sel-si':'');
-  document.getElementById('ccNo').className='ccard'+(val===false?' sel-no':'');
-  document.getElementById('btnSig2').disabled=false;
-  document.getElementById('fotoBox').style.display=val===true?'block':'none';
-  if(val===false)borrarFoto();
+async function cargarListaReemplazantes(){
+  try{
+    const data=await api('getListaDocentes',{});
+    const sel=document.getElementById('wReemplazante');
+    sel.innerHTML='<option value="">â€” Sin reemplazante â€”</option>';
+    (data||[]).forEach(d=>{
+      if(d!==usuario.nombre){
+        const o=document.createElement('option');
+        o.value=d; o.textContent=d;
+        sel.appendChild(o);
+      }
+    });
+  }catch(e){}
 }
 function previsualizarFoto(input){
   if(!input.files||!input.files[0])return;
   const reader=new FileReader();
   reader.onload=e=>{
-    // Comprimir a max 400px y calidad 35% para que quepa en la URL
     const img=new Image();
     img.onload=()=>{
-      // Comprimir para que entre en GET pero legible: max 900px, calidad 65%
-      const MAX=900;
+      // Comprimir a 1200px max, calidad 80% â€” buena calidad para leer certificado
+      const MAX=1200;
       let w2=img.width, h2=img.height;
-      if(w2>h2){ if(w2>MAX){h2=Math.round(h2*MAX/w2);w2=MAX;} }
-      else     { if(h2>MAX){w2=Math.round(w2*MAX/h2);h2=MAX;} }
+      if(w2>h2){if(w2>MAX){h2=Math.round(h2*MAX/w2);w2=MAX;}}
+      else{if(h2>MAX){w2=Math.round(w2*MAX/h2);h2=MAX;}}
       const canvas=document.createElement('canvas');
-      canvas.width=w2; canvas.height=h2;
+      canvas.width=w2;canvas.height=h2;
       canvas.getContext('2d').drawImage(img,0,0,w2,h2);
-      let compressed=canvas.toDataURL('image/jpeg', 0.65);
-      // Si supera 300KB comprimir un poco más
-      let q=0.55;
-      while(compressed.length > 400000 && q > 0.30) {
-        compressed=canvas.toDataURL('image/jpeg', q);
-        q-=0.05;
-      }
+      const compressed=canvas.toDataURL('image/jpeg',0.80);
       document.getElementById('fotoImg').src=compressed;
       document.getElementById('fotoPreview').style.display='block';
       wFotoBase64=compressed;
-      // Mostrar tamaño
       const kb=Math.round(compressed.length*0.75/1024);
-      document.getElementById('fotoSize').textContent=`📎 Foto lista (${kb} KB)`;
+      document.getElementById('fotoSize').textContent=`ðŸ“Ž Foto lista (${kb} KB)`;
     };
     img.src=e.target.result;
   };
@@ -773,19 +858,64 @@ function borrarFoto(){
   document.getElementById('fotoImg').src='';
   wFotoBase64=null;
 }
+async function subirFotoCloudinary(base64){
+  // Convertir base64 a Blob
+  const arr=base64.split(','), mime=arr[0].match(/:(.*?);/)[1];
+  const bstr=atob(arr[1]);
+  let n=bstr.length;
+  const u8=new Uint8Array(n);
+  while(n--) u8[n]=bstr.charCodeAt(n);
+  const blob=new Blob([u8],{type:mime});
+  const fd=new FormData();
+  fd.append('file', blob);
+  fd.append('upload_preset', CLOUDINARY_PRESET);
+  fd.append('folder','certificados');
+  const res=await fetch(`https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD}/image/upload`,{method:'POST',body:fd});
+  if(!res.ok) throw new Error('Error subiendo foto a Cloudinary');
+  const data=await res.json();
+  return data.secure_url;
+}
+function toggleTipoReemplazo(){
+  const v=document.getElementById('wReemplazante').value;
+  document.getElementById('wTipoReemplazo').style.display=v?'block':'none';
+  wReemplazanteNombre=v||null;
+}
+function selMotivo(el,val){
+  document.querySelectorAll('.rcard').forEach(r=>r.classList.remove('sel'));
+  el.classList.add('sel'); wMotivo=val;
+  // mostrar/ocultar "obligatorio" en obs para Otras
+  document.getElementById('obsReq').style.display=val==='Otras'?'inline':'none';
+}
+function selDuracion(el,val){
+  document.querySelectorAll('input[name="duracion"]').forEach(r=>{
+    r.closest('.rcard').classList.remove('sel');
+  });
+  el.classList.add('sel'); wDuracion=val;
+}
 function wNext(step){
   if(step===1){
-    if(!document.getElementById('wFecha').value){alert('Seleccioná una fecha.');return;}
-    if(!wMotivo){alert('Seleccioná un motivo.');return;}
-    wMotivo.toLowerCase().includes('médic')?goStep(2):(wCert=null,goStep(3),armarConfirmacion());
-  }else if(step===2){
-    if(wCert===null){alert('Indicá si tenés certificado.');return;}
-    goStep(3);armarConfirmacion();
+    if(!document.getElementById('wFecha').value){alert('SeleccionÃ¡ una fecha.');return;}
+    if(!wMotivo){alert('SeleccionÃ¡ un motivo.');return;}
+    if(wMotivo==='Otras'&&!document.getElementById('wObs').value.trim()){alert('DescribÃ­ el motivo en Observaciones.');return;}
+    // mostrar/ocultar secciÃ³n enfermedad en paso 2
+    document.getElementById('detEnfermedad').style.display=wMotivo==='Enfermedad'?'block':'none';
+    document.getElementById('detFoto').style.display=wMotivo==='Enfermedad'?'block':'none';
+    goStep(2);
+  } else if(step===2){
+    if(wMotivo==='Enfermedad'){
+      if(!document.getElementById('wDiagnostico').value.trim()){alert('IngresÃ¡ el diagnÃ³stico.');return;}
+      if(!wDuracion){alert('SeleccionÃ¡ la duraciÃ³n estimada.');return;}
+      wDiagnostico=document.getElementById('wDiagnostico').value.trim();
+    }
+    const rSel=document.getElementById('wReemplazante').value;
+    wReemplazanteNombre=rSel||null;
+    wTipoReemplazo=rSel?document.getElementById('wTipoReemplazo').value||null:null;
+    goStep(3); armarConfirmacion();
   }
 }
 function wBack(step){
   if(step===2)goStep(1);
-  else if(step===3){wMotivo&&wMotivo.toLowerCase().includes('médic')?goStep(2):goStep(1);}
+  else if(step===3)goStep(2);
 }
 function goStep(n){
   document.querySelectorAll('.step').forEach(s=>s.classList.remove('active'));
@@ -793,7 +923,7 @@ function goStep(n){
   for(let i=1;i<=4;i++){
     const si=document.getElementById('si'+i);
     si.className='sind';
-    if(i<n){si.classList.add('done');si.textContent='✓';}
+    if(i<n){si.classList.add('done');si.textContent='âœ“';}
     else if(i===n)si.classList.add('active');
     else si.textContent=String(i);
     if(i<4){const sl=document.getElementById('sl'+i);sl.className='sline';if(i<n)sl.classList.add('done');}
@@ -803,31 +933,37 @@ async function armarConfirmacion(){
   const fechaV=document.getElementById('wFecha').value;
   const p=fechaV.split('-');
   const fechaStr=`${p[2]}/${p[1]}/${p[0]}`;
-  const certTxt=wCert===true?'✅ Sí':wCert===false?'📋 No (presentar en 48 hs)':'N/A';
-  document.getElementById('confResumen').innerHTML=`
+  let resumen=`
     <div class="conf-item"><span class="ci-lbl">Fecha</span><span class="ci-val">${fechaStr}</span></div>
     <div class="conf-item"><span class="ci-lbl">Nombre</span><span class="ci-val">${usuario.nombre}</span></div>
     <div class="conf-item"><span class="ci-lbl">Rol</span><span class="ci-val">${usuario.rol}</span></div>
     <div class="conf-item"><span class="ci-lbl">Motivo</span><span class="ci-val">${wMotivo}</span></div>
-    ${wCert!==null?`<div class="conf-item"><span class="ci-lbl">Certificado</span><span class="ci-val">${certTxt}</span></div>`:''}
-    ${wFotoBase64?'<div class="conf-item"><span class="ci-lbl">Foto cert.</span><span class="ci-val">📎 Adjunta</span></div>':''}
   `;
+  if(wMotivo==='Enfermedad'){
+    resumen+=`<div class="conf-item"><span class="ci-lbl">DiagnÃ³stico</span><span class="ci-val">${wDiagnostico||'â€”'}</span></div>`;
+    resumen+=`<div class="conf-item"><span class="ci-lbl">DuraciÃ³n</span><span class="ci-val">${wDuracion||'â€”'}</span></div>`;
+  }
+  if(wReemplazanteNombre){
+    resumen+=`<div class="conf-item"><span class="ci-lbl">Reemplazante</span><span class="ci-val">${wReemplazanteNombre}</span></div>`;
+    if(wTipoReemplazo) resumen+=`<div class="conf-item"><span class="ci-lbl">Tipo reemplazo</span><span class="ci-val">${wTipoReemplazo}</span></div>`;
+  }
+  document.getElementById('confResumen').innerHTML=resumen;
   document.getElementById('confClases').innerHTML='<div class="loading" style="padding:14px"><div class="sspin"></div>Buscando tus horarios...</div>';
   document.getElementById('btnConfirmar').disabled=true;
   try{
     const data=await api('getMisBloquesHorarios',{fechaStr});
     const bloques=data.bloques||[];
     if(!bloques.length){
-      document.getElementById('confClases').innerHTML='<div class="al aw">⚠️ No encontré horario asignado para ese día.</div>';
+      document.getElementById('confClases').innerHTML='<div class="al aw">âš ï¸ No encontrÃ© horario asignado para ese dÃ­a.</div>';
     }else{
       document.getElementById('btnConfirmar').disabled=false;
       const lbl=usuario.rol==='Docente'?'clase(s)':'bloque(s) horario(s)';
-      let h=`<p style="font-size:.82em;font-weight:700;color:var(--vd);margin-bottom:10px">📅 ${bloques.length} ${lbl} que quedarán como AUSENTE:</p>`;
+      let h=`<p style="font-size:.82em;font-weight:700;color:var(--vd);margin-bottom:10px">ðŸ“… ${bloques.length} ${lbl} que quedarÃ¡n como AUSENTE:</p>`;
       bloques.forEach(b=>{h+=`<div class="clase-row"><span class="clase-tag">${b.horario}</span><span class="clase-tag" style="background:var(--vm)">${b.turno}</span><span style="flex:1">${b.descripcion}</span></div>`;});
       document.getElementById('confClases').innerHTML=h;
     }
   }catch(e){
-    document.getElementById('confClases').innerHTML=`<div class="al aer">❌ ${e.message}</div>`;
+    document.getElementById('confClases').innerHTML=`<div class="al aer">âŒ ${e.message}</div>`;
   }
 }
 async function confirmarAusencia(){
@@ -835,58 +971,66 @@ async function confirmarAusencia(){
   const p=fechaV.split('-');
   const fechaStr=`${p[2]}/${p[1]}/${p[0]}`;
   const btn=document.getElementById('btnConfirmar');
-  btn.disabled=true;btn.textContent='⏳ Enviando...';
+  btn.disabled=true;btn.textContent='â³ Enviando...';
   try{
-    // Subir foto al Worker primero si existe
-    // Paso 1: registrar la ausencia
-    btn.textContent='⏳ Registrando...';
-    let res;
-    try {
-      res=await api('registrarInasistenciaPropia',{
-        datos:{fechaAusencia:fechaStr,motivo:wMotivo,tieneCertificado:wCert,
-                observaciones:document.getElementById('wObs').value}
-      });
-    } catch(e1) { throw e1; }
-    // Paso 2: si hay foto, subirla por separado a Drive
-    if (wFotoBase64) {
-      try {
-        btn.textContent='⏳ Subiendo certificado a Drive...';
-        await api('guardarCertificadoDrive',{
-          fotoBase64: wFotoBase64,
-          nombre: usuario.nombre,
-          fecha: fechaStr
-        });
-      } catch(ef) {
-        console.warn('No se pudo subir el certificado:', ef.message);
+    // Si hay foto, subirla a Cloudinary primero
+    let linkFoto='';
+    if(wFotoBase64){
+      try{
+        btn.textContent='â³ Subiendo certificado...';
+        linkFoto=await subirFotoCloudinary(wFotoBase64);
+      }catch(ef){
+        console.warn('No se pudo subir foto:', ef.message);
       }
     }
+    btn.textContent='â³ Registrando...';
+    let res;
+    res=await api('registrarInasistenciaPropia',{
+      datos:{
+        fechaAusencia:fechaStr,
+        motivo:wMotivo,
+        diagnostico:wDiagnostico||'',
+        duracion:wDuracion||'',
+        reemplazante:wReemplazanteNombre||'',
+        tipoReemplazo:wTipoReemplazo||'',
+        linkCertificado:linkFoto||'',
+        observaciones:document.getElementById('wObs').value
+      }
+    });
     goStep(4);
-    // Foto ya incluida en el registro principal (comprimida a <3KB)
     document.getElementById('wExitoMsg').innerHTML=
       `Tu inasistencia del <strong>${fechaStr}</strong> fue registrada.<br>
        <strong>${res.bloquesAfectados} bloque(s)</strong> marcados como ausente.<br><br>
-       📧 Se envió aviso a <em>secundaria@colegioperitomoreno.com.ar</em>`;
-    const certMsg=wCert===false?'<strong>Recordá presentar el certificado en las 48 horas.</strong>':wCert===true?'No olvidés entregarlo en Secretaría.':'';
+       ðŸ“§ Se enviÃ³ aviso a <em>secundaria@colegioperitomoreno.com.ar</em>`;
+    let avisoMsg='';
+    if(wMotivo==='Enfermedad'){
+      avisoMsg='â° RecordÃ¡ presentar <strong>2 copias del certificado mÃ©dico</strong> dentro de las 48 hs (SecretarÃ­a y AdministraciÃ³n), firmando al dorso con fecha. TambiÃ©n debÃ©s entregar el <strong>plan de continuidad pedagÃ³gica</strong>.';
+      if(linkFoto) avisoMsg+='<br><br>âœ… <strong>Certificado subido correctamente.</strong>';
+    }
+    else if(wMotivo==='Examen') avisoMsg='ðŸ“„ DebÃ©s presentar constancia firmada por autoridad competente y sello de la instituciÃ³n educativa.';
+    else if(wMotivo==='Paro de transporte') avisoMsg='ðŸ“ž Comunicarte con el Secretario para que te indique la nota correspondiente.';
+    else if(wMotivo==='Causas gremiales') avisoMsg='ðŸ¤ DebÃ©s entregar constancia emitida por el sindicato.';
+    else if(wMotivo==='Paro general') avisoMsg='âœŠ AdhesiÃ³n al paro registrada. No se requiere documentaciÃ³n adicional.';
     const ce=document.getElementById('wExitoCert');
-    if(certMsg){ce.innerHTML='📋 '+certMsg;ce.style.display='flex';}
-  }catch(e){alert('❌ '+e.message);}
-  btn.disabled=false;btn.textContent='✅ Confirmar y enviar';
+    if(avisoMsg){ce.innerHTML=avisoMsg;ce.style.display='flex';}
+  }catch(e){alert('âŒ '+e.message);}
+  btn.disabled=false;btn.textContent='âœ… Confirmar y enviar';
 }
 
-// ═══════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 // MIS AUSENCIAS
-// ═══════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 async function cargarMisAusencias(){
   document.getElementById('misAusenciasZ').innerHTML='<div class="loading"><div class="sspin"></div></div>';
   try{
     const data=await api('getMisAusencias');
-    if(!data.length){document.getElementById('misAusenciasZ').innerHTML='<p style="color:#90A4AE;font-style:italic;margin-bottom:16px">No registraste inasistencias este año.</p>';return;}
+    if(!data.length){document.getElementById('misAusenciasZ').innerHTML='<p style="color:#90A4AE;font-style:italic;margin-bottom:16px">No registraste inasistencias este aÃ±o.</p>';return;}
     let h=`<p style="font-size:.82em;font-weight:700;color:var(--gt);margin-bottom:12px;text-transform:uppercase;letter-spacing:.5px">Tus inasistencias (${data.length})</p>`;
     data.slice().reverse().forEach(a=>{
-      const cc=a.certificado==='Sí'?'cert-si':a.certificado==='No'?'cert-no':'cert-na';
-      const ct=a.certificado==='Sí'?'✅ Con certificado':a.certificado==='No'?'📋 Sin certificado':'—';
+      const cc=a.certificado==='SÃ­'?'cert-si':a.certificado==='No'?'cert-no':'cert-na';
+      const ct=a.certificado==='SÃ­'?'âœ… Con certificado':a.certificado==='No'?'ðŸ“‹ Sin certificado':'â€”';
       h+=`<div class="aus-card">
-        <div class="aus-fecha">📅 ${a.fecha} <span style="font-size:.78em;color:var(--gt)">(${a.dia})</span></div>
+        <div class="aus-fecha">ðŸ“… ${a.fecha} <span style="font-size:.78em;color:var(--gt)">(${a.dia})</span></div>
         <div class="aus-mot">Motivo: <strong>${a.motivo}</strong> &nbsp;|&nbsp; <span class="aus-cert ${cc}">${ct}</span></div>
         <div style="font-size:.8em;color:#90A4AE;margin-top:4px">${a.cantBloques} bloque(s) afectado(s)</div>
       </div>`;
@@ -895,11 +1039,11 @@ async function cargarMisAusencias(){
   }catch(e){document.getElementById('misAusenciasZ').innerHTML='';}
 }
 
-// ═══════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 // HISTORIAL
-// ═══════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 function fmtFecha(f){
-  if(!f)return '—';
+  if(!f)return 'â€”';
   const s=String(f);
   if(/^\d{2}\/\d{2}\/\d{4}$/.test(s))return s;
   if(s.includes('T')||s.includes('-')){const d=new Date(s);if(!isNaN(d))return d.toLocaleDateString('es-AR',{day:'2-digit',month:'2-digit',year:'numeric'});}
@@ -907,44 +1051,44 @@ function fmtFecha(f){
 }
 async function buscarHistorial(){
   const n=document.getElementById('histDoc').value.trim();
-  if(!n){alert('Ingresá un apellido.');return;}
+  if(!n){alert('IngresÃ¡ un apellido.');return;}
   document.getElementById('histZ').innerHTML='<div class="loading"><div class="sspin"></div></div>';
   try{
     const data=await api('getHistorialDocente',{nombre:n});
     renderTablaH('histZ',data);
-  }catch(e){document.getElementById('histZ').innerHTML=`<div class="al aer">❌ ${e.message}</div>`;}
+  }catch(e){document.getElementById('histZ').innerHTML=`<div class="al aer">âŒ ${e.message}</div>`;}
 }
 function renderTablaH(cid,data){
   if(!data.length){document.getElementById(cid).innerHTML='<p style="color:#90A4AE;font-style:italic">Sin resultados.</p>';return;}
   let h=`<div class="wt"><table class="tr2"><thead><tr>
-    <th>Fecha</th><th>Día</th><th>Horario</th><th>División</th><th>Materia</th>
+    <th>Fecha</th><th>DÃ­a</th><th>Horario</th><th>DivisiÃ³n</th><th>Materia</th>
     <th>Estado</th><th>Reemplazante</th><th>Abono</th><th>Motivo</th><th>Certificado</th>
   </tr></thead><tbody>`;
   data.forEach(r=>{
-    const ic={Presente:'✅',Ausente:'❌',Tarde:'⚠️',Reemplazante:'🔄'}[r.estado]||'';
+    const ic={Presente:'âœ…',Ausente:'âŒ',Tarde:'âš ï¸',Reemplazante:'ðŸ”„'}[r.estado]||'';
     h+=`<tr>
       <td>${fmtFecha(r.fecha)}</td><td>${r.dia}</td><td>${r.horario}</td><td>${r.division}</td>
       <td>${r.materia}</td><td>${ic} ${r.estado}</td>
-      <td style="font-size:.82em">${r.reemplazante||'—'}</td>
-      <td style="font-size:.82em">${r.abono||'—'}</td>
-      <td style="font-size:.82em">${r.motivo||'—'}</td>
-      <td style="font-size:.82em">${r.certificado||'—'}</td>
+      <td style="font-size:.82em">${r.reemplazante||'â€”'}</td>
+      <td style="font-size:.82em">${r.abono||'â€”'}</td>
+      <td style="font-size:.82em">${r.motivo||'â€”'}</td>
+      <td style="font-size:.82em">${r.certificado||'â€”'}</td>
     </tr>`;
   });
   h+='</tbody></table></div>';
   document.getElementById(cid).innerHTML=h;
 }
 
-// ═══════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 // REPORTE
-// ═══════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 async function generarReporte(){
   const m=document.getElementById('repMes').value,a=document.getElementById('repAnio').value;
   document.getElementById('repZ').innerHTML='<div class="loading"><div class="sspin"></div></div>';
   try{
     const data=await api('getReporteMensual',{mes:m,anio:a});
     _repData=data;
-    if(!data.length){document.getElementById('repZ').innerHTML='<p style="color:#90A4AE;font-style:italic">Sin datos para ese período.</p>';return;}
+    if(!data.length){document.getElementById('repZ').innerHTML='<p style="color:#90A4AE;font-style:italic">Sin datos para ese perÃ­odo.</p>';return;}
     const tr=data.reduce((s,r)=>s+r.total,0),ta=data.reduce((s,r)=>s+r.ausente,0);
     const pg=tr>0?Math.round(((tr-ta)/tr)*100):0;
     let h=`<h3 style="color:var(--vd);margin-bottom:14px;font-size:1em">${MESES[m]} ${a}</h3>
@@ -954,7 +1098,7 @@ async function generarReporte(){
       <div class="sc sp"><div class="n">${pg}%</div><div class="l">Asistencia</div></div>
     </div>
     <div class="wt"><table class="tr2"><thead><tr>
-      <th>Docente</th><th>Materia</th><th>División</th><th>Total</th><th>✅</th><th>❌</th><th>⚠️</th><th>%</th>
+      <th>Docente</th><th>Materia</th><th>DivisiÃ³n</th><th>Total</th><th>âœ…</th><th>âŒ</th><th>âš ï¸</th><th>%</th>
     </tr></thead><tbody>`;
     data.sort((a,b)=>a.docente.localeCompare(b.docente)).forEach(r=>{
       const pc=r.porcentaje>=85?'pa2':r.porcentaje>=70?'pm2':'pb2';
@@ -964,25 +1108,149 @@ async function generarReporte(){
     });
     h+='</tbody></table></div>';
     document.getElementById('repZ').innerHTML=h;
-  }catch(e){document.getElementById('repZ').innerHTML=`<div class="al aer">❌ ${e.message}</div>`;}
+  }catch(e){document.getElementById('repZ').innerHTML=`<div class="al aer">âŒ ${e.message}</div>`;}
 }
 function exportarCSV(){
-  if(!_repData.length){alert('Primero generá el reporte.');return;}
+  if(!_repData.length){alert('Primero generÃ¡ el reporte.');return;}
   const m=document.getElementById('repMes').value,a=document.getElementById('repAnio').value;
-  let csv='Docente,Materia,División,Total,Presentes,Ausentes,Tarde,%\n';
+  let csv='Docente,Materia,DivisiÃ³n,Total,Presentes,Ausentes,Tarde,%\n';
   _repData.forEach(r=>{csv+=`${r.docente},${r.materia},${r.division},${r.total},${r.presente},${r.ausente},${r.tarde},${r.porcentaje}%
 `;});
   const el=document.createElement('a');
-  el.href='data:text/csv;charset=utf-8,'+encodeURIComponent('﻿'+csv);
+  el.href='data:text/csv;charset=utf-8,'+encodeURIComponent('ï»¿'+csv);
   el.download=`Asistencia_${MESES[m]}_${a}.csv`;el.click();
 }
 
-// ═══════════════════════════════════
+
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ESTADÃSTICAS
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+async function generarEstadisticas(){
+  const mes=parseInt(document.getElementById('estMes').value);
+  const anio=parseInt(document.getElementById('estAnio').value);
+  document.getElementById('estZ').innerHTML='<div class="loading"><div class="sspin"></div></div>';
+  try{
+    const data=await api('getEstadisticas',{mes,anio});
+    if(!data||!data.total){
+      document.getElementById('estZ').innerHTML='<p style="color:#90A4AE;font-style:italic">Sin datos para ese perÃ­odo.</p>';
+      return;
+    }
+    const periodo=mes===0?`AÃ±o ${anio}`:`${MESES[mes]} ${anio}`;
+    let h=`<h3 style="color:var(--vd);font-size:1em;margin-bottom:16px">${periodo} â€” ${data.total} ausencias registradas</h3>`;
+
+    // Tarjetas resumen
+    h+=`<div class="sgrid" style="margin-bottom:20px">
+      <div class="sc"><div class="n">${data.total}</div><div class="l">Total ausencias</div></div>
+      <div class="sc sa"><div class="n">${data.docentesAfectados}</div><div class="l">Docentes</div></div>
+      <div class="sc sp"><div class="n">${data.materiasAfectadas}</div><div class="l">Materias</div></div>
+      <div class="sc"><div class="n">${data.cursosAfectados}</div><div class="l">Cursos</div></div>
+    </div>`;
+
+    // Por motivo
+    h+=`<div class="ctit" style="font-size:.9em;margin-bottom:10px">ðŸ“Š Ausencias por motivo</div>`;
+    h+=`<div class="wt" style="margin-bottom:20px"><table class="tr2"><thead><tr><th>Motivo</th><th>Cantidad</th><th>%</th></tr></thead><tbody>`;
+    data.porMotivo.forEach(m=>{
+      const pct=data.total>0?Math.round(m.cantidad/data.total*100):0;
+      const bar=`<div style="background:var(--vc);height:8px;border-radius:4px;width:${pct}%;min-width:4px;display:inline-block;margin-left:6px;vertical-align:middle"></div>`;
+      h+=`<tr><td>${m.motivo}</td><td>${m.cantidad}</td><td>${pct}%${bar}</td></tr>`;
+    });
+    h+=`</tbody></table></div>`;
+
+    // Ranking docentes
+    h+=`<div class="ctit" style="font-size:.9em;margin-bottom:10px">ðŸ‘¤ Docentes con mÃ¡s ausencias</div>`;
+    h+=`<div class="wt" style="margin-bottom:20px"><table class="tr2"><thead><tr><th>#</th><th>Docente</th><th>Ausencias</th></tr></thead><tbody>`;
+    data.rankingDocentes.slice(0,10).forEach((d,i)=>{
+      h+=`<tr><td>${i+1}</td><td>${d.nombre}</td><td>${d.cantidad}</td></tr>`;
+    });
+    h+=`</tbody></table></div>`;
+
+    // Materias mÃ¡s afectadas
+    h+=`<div class="ctit" style="font-size:.9em;margin-bottom:10px">ðŸ“š Materias mÃ¡s afectadas</div>`;
+    h+=`<div class="wt" style="margin-bottom:20px"><table class="tr2"><thead><tr><th>Materia</th><th>Bloques perdidos</th></tr></thead><tbody>`;
+    data.materias.slice(0,10).forEach(m=>{
+      h+=`<tr><td>${m.nombre}</td><td>${m.cantidad}</td></tr>`;
+    });
+    h+=`</tbody></table></div>`;
+
+    // Cursos mÃ¡s afectados
+    h+=`<div class="ctit" style="font-size:.9em;margin-bottom:10px">ðŸ« Cursos mÃ¡s afectados</div>`;
+    h+=`<div class="wt"><table class="tr2"><thead><tr><th>Curso/DivisiÃ³n</th><th>Bloques perdidos</th></tr></thead><tbody>`;
+    data.cursos.slice(0,10).forEach(c=>{
+      h+=`<tr><td>${c.nombre}</td><td>${c.cantidad}</td></tr>`;
+    });
+    h+=`</tbody></table></div>`;
+
+    document.getElementById('estZ').innerHTML=h;
+  }catch(e){document.getElementById('estZ').innerHTML=`<div class="al aer">âŒ ${e.message}</div>`;}
+}
+
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// EXPORTAR EXCEL
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+async function exportarExcel(){
+  const desde=document.getElementById('expDesde').value;
+  const hasta=document.getElementById('expHasta').value;
+  if(!desde||!hasta){alert('SeleccionÃ¡ fecha desde y hasta.');return;}
+  document.getElementById('expZ').innerHTML='<div class="loading"><div class="sspin"></div>Preparando datos...</div>';
+  try{
+    const data=await api('getAusenciasExport',{desde,hasta});
+    if(!data||!data.registros||!data.registros.length){
+      document.getElementById('expZ').innerHTML='<p style="color:#90A4AE;font-style:italic">Sin datos para ese perÃ­odo.</p>';
+      return;
+    }
+    // Generar Excel con SheetJS
+    const XLSX=await cargarSheetJS();
+    const wb=XLSX.utils.book_new();
+    const motivos=['Enfermedad','Paro general','Paro de transporte','Examen','Causas gremiales','Otras'];
+    const cols=['Fecha','DÃ­a','Docente','Rol','Materia','DivisiÃ³n','Horario','Motivo','DiagnÃ³stico','DuraciÃ³n','Reemplazante','Tipo Reemplazo','Observaciones'];
+
+    motivos.forEach(motivo=>{
+      const filas=data.registros.filter(r=>r.motivo===motivo);
+      const wsData=[cols].concat(filas.map(r=>[
+        r.fecha,r.dia,r.docente,r.rol,r.materia,r.division,r.horario,
+        r.motivo,r.diagnostico||'',r.duracion||'',
+        r.reemplazante||'',r.tipoReemplazo||'',r.observaciones||''
+      ]));
+      const ws=XLSX.utils.aoa_to_sheet(wsData);
+      ws['!cols']=[{wch:12},{wch:10},{wch:25},{wch:15},{wch:20},{wch:10},{wch:10},{wch:18},{wch:20},{wch:12},{wch:25},{wch:18},{wch:25}];
+      XLSX.utils.book_append_sheet(wb,ws,motivo.substring(0,31));
+    });
+
+    // Hoja resumen
+    const resumen=[['Motivo','Cantidad']];
+    motivos.forEach(m=>{
+      const c=data.registros.filter(r=>r.motivo===m).length;
+      resumen.push([m,c]);
+    });
+    resumen.push(['','']);
+    resumen.push(['TOTAL',data.registros.length]);
+    const wsRes=XLSX.utils.aoa_to_sheet(resumen);
+    wsRes['!cols']=[{wch:25},{wch:10}];
+    XLSX.utils.book_append_sheet(wb,wsRes,'Resumen');
+
+    const desde2=desde.replace(/-/g,'');
+    const hasta2=hasta.replace(/-/g,'');
+    XLSX.writeFile(wb,`Ausencias_${desde2}_${hasta2}.xlsx`);
+    document.getElementById('expZ').innerHTML=`<div class="al as">âœ… Excel descargado con ${data.registros.length} registros en ${motivos.length} hojas + Resumen.</div>`;
+  }catch(e){document.getElementById('expZ').innerHTML=`<div class="al aer">âŒ ${e.message}</div>`;}
+}
+
+async function cargarSheetJS(){
+  return new Promise((resolve,reject)=>{
+    if(window.XLSX){resolve(window.XLSX);return;}
+    const s=document.createElement('script');
+    s.src='https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js';
+    s.onload=()=>resolve(window.XLSX);
+    s.onerror=()=>reject(new Error('No se pudo cargar SheetJS'));
+    document.head.appendChild(s);
+  });
+}
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 // POR DOCENTE
-// ═══════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 async function buscarPorDocente(){
   const n=document.getElementById('docBus').value.trim();
-  if(!n){alert('Ingresá un apellido.');return;}
+  if(!n){alert('IngresÃ¡ un apellido.');return;}
   document.getElementById('docZ').innerHTML='<div class="loading"><div class="sspin"></div></div>';
   try{
     const data=await api('getHistorialDocente',{nombre:n});
@@ -999,12 +1267,12 @@ async function buscarPorDocente(){
     document.getElementById('docZ').innerHTML=stats;
     renderTablaH('docZ',data);
     document.getElementById('docZ').innerHTML=stats+document.getElementById('docZ').innerHTML;
-  }catch(e){document.getElementById('docZ').innerHTML=`<div class="al aer">❌ ${e.message}</div>`;}
+  }catch(e){document.getElementById('docZ').innerHTML=`<div class="al aer">âŒ ${e.message}</div>`;}
 }
 
-// ═══════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 // AUTOCOMPLETE
-// ═══════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 async function cargarDocentes(){
   try{
     const lista=await api('getListaDocentes');
@@ -1015,12 +1283,12 @@ async function cargarDocentes(){
   }catch(e){}
 }
 
-// ═══════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 // HELPERS
-// ════════════════════════════
-// ═══════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 // HELPERS
-// ═══════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 function setAlerta(msg, tipo, cid){
   cid = cid || 'alertaZ';
   const z = document.getElementById(cid);
