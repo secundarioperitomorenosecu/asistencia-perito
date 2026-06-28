@@ -280,7 +280,7 @@ const APPS_SCRIPT_URL='https://script.google.com/macros/s/AKfycbzK0oV1bstHcHWFel
     <div id="tab-historial" class="tp">
       <div class="card">
         <div class="ctit">🔍 Historial de Inasistencias</div>
-        <div class="frow">
+        <div class="frow" id="histBuscadorRow">
           <div class="fg"><label>Apellido</label><input type="text" id="histDoc" placeholder="Ej: GOMEZ" list="dlD"></div>
           <button class="btn bpri" onclick="buscarHistorial()">🔍 Buscar</button>
         </div>
@@ -598,6 +598,8 @@ function initApp(){
   document.querySelectorAll('.admin-only').forEach(el=>el.style.display=esAdmin?'':'none');
   if(esDocente){
     document.getElementById('tab-btn-hoy').style.display='none';
+    // Ocultar buscador de historial: el docente solo ve su propio historial
+    document.getElementById('histBuscadorRow').style.display='none';
     showTab('miausencia',document.getElementById('tab-btn-miausencia'));
     cargarMisAusencias();
   }else{
@@ -615,6 +617,10 @@ function showTab(name,btn){
   document.querySelectorAll('.tbtn').forEach(b=>b.classList.remove('active'));
   document.getElementById('tab-'+name).classList.add('active');
   if(btn)btn.classList.add('active');
+  // Si el docente abre su historial, cargarlo automáticamente
+  if(name==='historial' && usuario && usuario.rol==='Docente'){
+    buscarHistorial();
+  }
 }
 
 // ═══════════════════════════════════
@@ -1039,7 +1045,11 @@ function fmtFecha(f){
   return s;
 }
 async function buscarHistorial(){
-  const n=document.getElementById('histDoc').value.trim();
+  // Si es docente, busca SU propio historial sin necesidad de input
+  const esDocente = usuario.rol === 'Docente';
+  const n = esDocente
+    ? usuario.nombre.trim()
+    : document.getElementById('histDoc').value.trim();
   if(!n){alert('Ingresá un apellido.');return;}
   document.getElementById('histZ').innerHTML='<div class="loading"><div class="sspin"></div></div>';
   try{
