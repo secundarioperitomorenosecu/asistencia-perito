@@ -232,6 +232,7 @@ const APPS_SCRIPT_URL='https://script.google.com/macros/s/AKfycbzK0oV1bstHcHWFel
     </div>
   </header>
   <nav class="tnav">
+    <button class="tbtn" id="tab-btn-fichar" style="display:none" onclick="showTab('fichar',this);cargarFichaje()">🕘 Fichar llegada</button>
     <button class="tbtn active" id="tab-btn-hoy" onclick="showTab('hoy',this)">📋 Cargar Asistencia</button>
     <button class="tbtn" id="tab-btn-miausencia" onclick="showTab('miausencia',this)">📝 Mi Ausencia</button>
     <button class="tbtn" id="tab-btn-historial" onclick="showTab('historial',this)">🔍 Historial de Inasistencias</button>
@@ -241,6 +242,14 @@ const APPS_SCRIPT_URL='https://script.google.com/macros/s/AKfycbzK0oV1bstHcHWFel
     <button class="tbtn admin-only" id="tab-btn-exportar" onclick="showTab('exportar',this)">⬇️ Exportar</button>
   </nav>
   <div class="amain">
+
+    <!-- FICHAR (docente) -->
+    <div id="tab-fichar" class="tp">
+      <div class="card">
+        <div class="ctit">🕘 Fichar mi llegada</div>
+        <div id="ficharZ"><div class="loading"><div class="sspin"></div>Cargando...</div></div>
+      </div>
+    </div>
 
     <!-- CARGAR ASISTENCIA -->
     <div id="tab-hoy" class="tp active">
@@ -516,8 +525,8 @@ let usuario=null, clasesHoy=[], clasesVis=[];
 let wMotivo=null, wCert=null, wFotoBase64=null;
 let _repData=[];
 const MESES=['','Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
-const ROLES_ADMIN=['Director','Vicedirectora','Secretario','Representante Legal'];
-const ROLES_CARGA=['Preceptor','Director','Vicedirectora','Secretario','Representante Legal'];
+const ROLES_ADMIN=['Director','Directora','Coordinador','Coordinadora','Vicedirectora','Vicedirector','Secretario','Representante Legal'];
+const ROLES_CARGA=['Preceptor','Director','Directora','Coordinador','Coordinadora','Vicedirectora','Vicedirector','Secretario','Representante Legal'];
 
 // ═══════════════════════════════════
 // API — usa GET para evitar CORS
@@ -595,14 +604,19 @@ function initApp(){
   document.getElementById('appW').style.display='flex';
   const esDocente=usuario.rol==='Docente';
   const esAdmin=ROLES_ADMIN.includes(usuario.rol);
+  document.getElementById('tab-btn-fichar').style.display='';
+  document.getElementById('tab-btn-hoy').style.display=esDocente?'none':'';
   document.querySelectorAll('.admin-only').forEach(el=>el.style.display=esAdmin?'':'none');
   if(esDocente){
     document.getElementById('tab-btn-hoy').style.display='none';
     // Ocultar buscador de historial: el docente solo ve su propio historial
     document.getElementById('histBuscadorRow').style.display='none';
-    showTab('miausencia',document.getElementById('tab-btn-miausencia'));
+    showTab('fichar',document.getElementById('tab-btn-fichar'));
+    cargarFichaje();
     cargarMisAusencias();
   }else{
+    showTab('fichar',document.getElementById('tab-btn-fichar'));
+    cargarFichaje();
     cargarHorario();
     cargarDocentes();
     cargarMisAusencias();
@@ -620,6 +634,40 @@ function showTab(name,btn){
   // Si el docente abre su historial, cargarlo automáticamente
   if(name==='historial' && usuario && usuario.rol==='Docente'){
     buscarHistorial();
+  }
+}
+
+// ═══════════════════════════════════
+// FICHAJE DEL DOCENTE
+// ═══════════════════════════════════
+async function cargarFichaje(){
+  const z=document.getElementById('ficharZ');
+  z.innerHTML='<div class="loading"><div class="sspin"></div>Cargando...</div>';
+  try{z.innerHTML=renderFichaje(await api('getEstadoFichaje'));}
+  catch(err){z.innerHTML=`<div class="al aer">❌ ${err.message}</div>`;}
+}
+function renderFichaje(e){
+  const cab=`<div style="text-align:center;margin-bottom:16px"><div style="color:#78909C;font-size:.9em">${e.dia} ${e.fecha}</div><div style="font-size:2.2em;font-weight:700;color:#00796B">${e.hora}</div></div>`;
+  if(e.finde)return cab+'<div class="al ai">ℹ️ Hoy es fin de semana, no hay fichaje.</div>';
+  if(e.feriado)return cab+'<div class="al ai">ℹ️ Hoy es feriado, no hay fichaje.</div>';
+  if(e.sinClases)return cab+'<div class="al ai">ℹ️ Hoy no tenés clases cargadas en el horario.</div>';
+  const bl='<div style="font-size:.85em;color:#546E7A;margin-top:10px">'+e.bloques.join('<br>')+'</div>';
+  if(e.registro){
+    const t=e.registro.estado,cls=t==='Presente'?'aok':(t==='Tarde'?'aw':'aer');
+    return cab+`<div class="al ${cls}">${eIco(t)} Hoy figurás como <b>${t}</b>.${e.registro.obs?'<br>'+e.registro.obs:''}</div>`+bl;
+  }
+  if(e.cerrado)return cab+`<div class="al aer">❌ Tu jornada terminó a las ${e.fin} y no registraste asistencia. Consultá en dirección.</div>`+bl;
+  return cab+`<div class="al ai">ℹ️ Tu entrada de hoy es a las <b>${e.inicio}</b>. Si fichás después de esa hora, queda como <b>Tarde</b>.</div>
+    <div id="ficharMsg"></div>
+    <button class="btn bsuc" id="btnFichar" style="width:100%;padding:16px;font-size:1.1em" onclick="ficharAhora()">✅ Fichar mi llegada</button>`+bl;
+}
+async function ficharAhora(){
+  const btn=document.getElementById('btnFichar');
+  btn.disabled=true;btn.textContent='⏳ Fichando...';
+  try{await api('ficharLlegada');await cargarFichaje();}
+  catch(err){
+    document.getElementById('ficharMsg').innerHTML=`<div class="al aer">❌ ${err.message}</div>`;
+    btn.disabled=false;btn.textContent='✅ Fichar mi llegada';
   }
 }
 
